@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Monumento — Notifications temps réel</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 40px auto; }
+    #status { font-size: 14px; color: #666; }
+    #notifications { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+    .notif { padding: 12px 14px; border-radius: 12px; background: #e3efec; border-left: 4px solid #3f7f77; }
+    .notif h3 { margin: 0 0 4px; font-size: 16px; }
+    .notif p { margin: 0; font-size: 14px; color: #333; }
+    .notif time { display: block; margin-top: 6px; font-size: 12px; color: #666; }
+    .empty { color: #888; font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>Monumento — Notifications</h1>
+  <p id="status">Connexion…</p>
+  <ul id="notifications">
+    <li class="empty" id="empty">Aucune notification pour l'instant. Créez un monument avec POST /monuments.</li>
+  </ul>
+
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <script>
+    const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoiZGFuIiwicm9sZSI6InZpc2l0b3IiLCJpYXQiOjE3ODkxMjAxMDcsImV4cCI6MTc4OTEyMTkwN30.aiOh9yyLMz_sQQXOUPX7161BxJ9umaEk0J-CNCP3_zY";
+    const API_URL = "http://localhost:3000";
+
+    const socket = io(API_URL, { auth: { token: TOKEN } });
+    const status = document.getElementById("status");
+    const list = document.getElementById("notifications");
+
+    socket.on("connect", () => { status.textContent = "Connecté — en attente de nouveaux monuments…"; });
+    socket.on("connect_error", (err) => { status.textContent = "Connexion refusée : " + err.message; });
+    socket.on("disconnect", () => { status.textContent = "Déconnecté."; });
+
+    socket.on("monument:created", (monument) => {
+      document.getElementById("empty")?.remove();
+
+      const item = document.createElement("li");
+      item.className = "notif";
+
+      const title = document.createElement("h3");
+      title.textContent = `Nouveau monument publié : ${monument.title}`;
+
+      const description = document.createElement("p");
+      description.textContent = monument.description ?? "(pas de description)";
+
+      const date = document.createElement("time");
+      date.textContent = `#${monument.id} — ${new Date(monument.createdAt).toLocaleString("fr-FR")}`;
+
+      item.append(title, description, date);
+      list.prepend(item);
+    });
+  </script>
+</body>
+</html>

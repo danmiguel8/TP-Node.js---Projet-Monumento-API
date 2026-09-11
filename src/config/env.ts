@@ -24,7 +24,7 @@ export const env = {
   DB_PORT: optionalNumber("DB_PORT", 3306),
   DB_NAME: required("DB_NAME"),
   DB_USER: required("DB_USER"),
-  DB_PASSWORD: required("DB_PASSWORD"),
+  DB_PASSWORD: process.env.DB_PASSWORD ?? "",
   NODE_ENV: process.env.NODE_ENV ?? "development",
   JWT_SECRET: required("JWT_SECRET"),
   ACCESS_TOKEN_TTL: optionalNumber("ACCESS_TOKEN_TTL", 1800),

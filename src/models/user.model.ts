@@ -4,8 +4,14 @@ import {
   type InferAttributes,
   type InferCreationAttributes,
   type CreationOptional,
+  type NonAttribute,
+  type BelongsToManyGetAssociationsMixin,
+  type BelongsToManyAddAssociationMixin,
+  type BelongsToManyRemoveAssociationMixin,
+  type BelongsToManyHasAssociationMixin,
 } from "sequelize";
 import { sequelize } from "../db/sequelize.js";
+import type { Monument } from "./monument.model.js";
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare id: CreationOptional<number>;
@@ -16,6 +22,13 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   declare refreshTokenExpiry: CreationOptional<Date | null>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
+
+  // Association Many-to-Many : User <-> Monument (via Favorite)
+  declare getFavoriteMonuments: BelongsToManyGetAssociationsMixin<Monument>;
+  declare addFavoriteMonument: BelongsToManyAddAssociationMixin<Monument, number>;
+  declare removeFavoriteMonument: BelongsToManyRemoveAssociationMixin<Monument, number>;
+  declare hasFavoriteMonument: BelongsToManyHasAssociationMixin<Monument, number>;
+  declare favoriteMonuments?: NonAttribute<Monument[]>;
 }
 
 User.init(

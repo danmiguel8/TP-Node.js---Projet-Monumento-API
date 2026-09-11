@@ -1,12 +1,33 @@
 import type http from "node:http";
 import { Server } from "socket.io";
-import type { ChatMessage, ClientToServerEvents, ServerToClientEvents, SocketData } from "./events.js";
+import type {
+  ChatMessage,
+  ClientToServerEvents,
+  MonumentCreatedNotification,
+  ServerToClientEvents,
+  SocketData,
+} from "./events.js";
 import { verifyAccessToken, type TokenPayload } from "../services/token.service.js";
 
+type MonumentoServer = Server<ClientToServerEvents, ServerToClientEvents, {}, SocketData>;
+
+/** Instance partagée, utilisée par les controllers pour diffuser des notifications. */
+let ioInstance: MonumentoServer | null = null;
+
+/**
+ * Diffuse la notification "monument:created" à tous les clients connectés.
+ * Ne fait rien si le serveur WebSocket n'est pas initialisé.
+ */
+export function emitMonumentCreated(monument: MonumentCreatedNotification): void {
+  ioInstance?.emit("monument:created", monument);
+}
+
 export function setupSocketServer(server: http.Server) {
-  const io = new Server<ClientToServerEvents, ServerToClientEvents, {}, SocketData>(server, {
+  const io: MonumentoServer = new Server<ClientToServerEvents, ServerToClientEvents, {}, SocketData>(server, {
     cors: { origin: "*" },
   });
+
+  ioInstance = io;
 
   io.use((socket, next) => {
     const token = socket.handshake.auth.token;

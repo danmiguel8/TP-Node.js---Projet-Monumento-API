@@ -11,6 +11,13 @@ export interface ChatMessage {
   date: string;
 }
 
+export interface MonumentCreatedNotification {
+  id: number;
+  title: string;
+  description: string | null;
+  createdAt: string;
+}
+
 export interface ClientToServerEvents {
   "chat:send": (payload: { text: string }) => void;
 }
@@ -19,6 +26,7 @@ export interface ServerToClientEvents {
   "chat:message": (message: ChatMessage) => void;
   "chat:error": (message: string) => void;
   "presence:update": (payload: { visitors: number; guides: number }) => void;
+  "monument:created": (monument: MonumentCreatedNotification) => void;
 }
 
 export interface SocketData {

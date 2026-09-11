@@ -42,6 +42,41 @@ const spec = swaggerJsdoc({
                 description: { type: "string", nullable: true, maxLength: 2000 },
             },
         },
+        Anecdote: {
+          type: "object",
+          properties: {
+            id: { type: "integer", example: 1 },
+            content: {
+              type: "string",
+              example: "Gustave Eiffel s'était aménagé un appartement secret au sommet de la tour.",
+            },
+            monumentId: { type: "integer", example: 1 },
+            createdAt: { type: "string", format: "date-time" },
+            updatedAt: { type: "string", format: "date-time" },
+          },
+        },
+        AnecdoteInput: {
+          type: "object",
+          required: ["content"],
+          properties: {
+            content: {
+              type: "string",
+              minLength: 10,
+              maxLength: 2000,
+              example: "Gustave Eiffel s'était aménagé un appartement secret au sommet de la tour.",
+            },
+          },
+        },
+        Favorite: {
+          type: "object",
+          properties: {
+            id: { type: "integer", example: 1 },
+            userId: { type: "integer", example: 1 },
+            monumentId: { type: "integer", example: 1 },
+            createdAt: { type: "string", format: "date-time" },
+            updatedAt: { type: "string", format: "date-time" },
+          },
+        },
         ApiResponse: {
           type: "object",
           properties: { message: { type: "string" }, data: {} },

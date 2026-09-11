@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as monumentController from "../controllers/monument.controller.js";
+import * as anecdoteController from "../controllers/anecdote.controller.js";
 
 export const monumentRouter = Router();
 
@@ -159,3 +160,69 @@ monumentRouter.put("/:id", monumentController.update);
  *         description: Aucun monument avec cet identifiant
  */
 monumentRouter.delete("/:id", monumentController.remove);
+
+/**
+ * @swagger
+ * /monuments/{id}/anecdotes:
+ *   get:
+ *     summary: Liste les anecdotes d'un monument
+ *     tags: [Anecdotes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer, minimum: 1 }
+ *     responses:
+ *       200:
+ *         description: La liste, éventuellement vide
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - properties:
+ *                     data:
+ *                       type: array
+ *                       items: { $ref: '#/components/schemas/Anecdote' }
+ *       401:
+ *         description: Token manquant ou invalide
+ *       404:
+ *         description: Aucun monument avec cet identifiant
+ */
+monumentRouter.get("/:id/anecdotes", anecdoteController.findAllForMonument);
+
+/**
+ * @swagger
+ * /monuments/{id}/anecdotes:
+ *   post:
+ *     summary: Ajoute une anecdote à un monument
+ *     tags: [Anecdotes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer, minimum: 1 }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AnecdoteInput'
+ *     responses:
+ *       201:
+ *         description: Anecdote créée
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - properties:
+ *                     data: { $ref: '#/components/schemas/Anecdote' }
+ *       400:
+ *         description: Contenu absent ou invalide (10 à 2000 caractères)
+ *       401:
+ *         description: Token manquant ou invalide
+ *       404:
+ *         description: Aucun monument avec cet identifiant
+ */
+monumentRouter.post("/:id/anecdotes", anecdoteController.createForMonument);

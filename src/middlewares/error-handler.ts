@@ -9,7 +9,14 @@ const { TokenExpiredError, JsonWebTokenError } = jwt;
 function toHttpError(err: unknown): HttpError {
   if (err instanceof HttpError) return err;
 
-  if (err instanceof ValidationError || err instanceof UniqueConstraintError) {
+  if (err instanceof UniqueConstraintError) {
+    return badRequestError(
+      "Cette ressource existe déjà dans les favoris.",
+      err.errors.map((e) => e.message),
+    );
+  }
+
+  if (err instanceof ValidationError) {
     return badRequestError("Erreur de validation", err.errors.map((e) => e.message));
   }
 

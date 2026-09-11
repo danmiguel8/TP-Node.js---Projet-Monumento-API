@@ -2,6 +2,7 @@ import type { RequestHandler } from 'express';
 import { Monument } from '../models/monument.model.js';
 import { notFoundError, badRequestError } from '../errors/http-error.js';
 import { Op, WhereOptions } from 'sequelize';
+import { emitMonumentCreated } from '../socket/index.js';
 
 const SORTABLE = ["title", "buildYear", "createdAt"] as const;
 type Sortable = (typeof SORTABLE)[number];
@@ -57,6 +58,14 @@ export const findById: RequestHandler = async (req, res) => {
 
 export const create: RequestHandler = async (req, res) => {
     const newMonument = await Monument.create(req.body);
+
+    emitMonumentCreated({
+        id: newMonument.id,
+        title: newMonument.title,
+        description: newMonument.description,
+        createdAt: newMonument.createdAt.toISOString(),
+    });
+
     res.status(201).json({ message: 'Monument créé', data: newMonument });
 };
 
@@ -72,8 +81,10 @@ export const update: RequestHandler = async (req, res) => {
 
 export const remove: RequestHandler = async (req, res) => {
     const id = Number(req.params.id);
-    const deletedRowsCount = await Monument.destroy({ where: { id } });
+    const monument = await Monument.findByPk(id);
 
-    if (deletedRowsCount === 0) throw notFoundError(`Le monument avec l'ID ${id} n'a pas été trouvé`);
+    if (!monument) throw notFoundError(`Le monument avec l'ID ${id} n'a pas été trouvé`);
+
+    await monument.destroy();
     res.json({ message: 'Monument supprimé', data: null });
 };
